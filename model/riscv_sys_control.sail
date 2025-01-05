@@ -338,8 +338,8 @@ function init_sys() -> unit = {
     SD_64 = 0b0,
     SD_32 = 0b0,
     /* SXL and UXL is only valid for 64-bit systems and in RV32 WPRI */
-    SXL = misa[MXL],
-    UXL = misa[MXL],
+    SXL = if xlen != 32 then misa[MXL] else 0b00,
+    UXL = if xlen != 32 then misa[MXL] else 0b00,
     MPP = privLevel_to_bits(lowest_supported_privLevel()),
     /* set to little-endian mode */
     MBE = 0b0,
