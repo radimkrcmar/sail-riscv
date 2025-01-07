@@ -238,8 +238,7 @@ function translationMode(priv : Privilege) -> SATPMode = {
     }
   else if xlen == 64 then {
     // Translation mode is based on mstatus.SXL, which could be RV32 when xlen==64
-    let arch = architecture(get_mstatus_SXL(mstatus));
-    match arch {
+    match architecture(mstatus[SXL]) {
       RV64 => { let mbits : bits(4) = satp[63 .. 60];
                 match satp64Mode_of_bits(RV64, mbits) {    // see riscv_types.sail
                   Some(m) => m,

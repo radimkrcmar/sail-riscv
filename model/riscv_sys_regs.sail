@@ -210,18 +210,6 @@ function effectivePrivilege(t : AccessType(ext_access_type), m : Mstatus, priv :
   then privLevel_of_bits(m[MPP])
   else priv
 
-function get_mstatus_SXL(m : Mstatus) -> arch_xlen = {
-  if   xlen == 32
-  then architecture(RV32)
-  else m[SXL]
-}
-
-function get_mstatus_UXL(m : Mstatus) -> arch_xlen = {
-  if   xlen == 32
-  then architecture(RV32)
-  else m[UXL]
-}
-
 function get_mstatus_SD(m : Mstatus) -> bits(1) = {
   if   xlen == 32 then m[SD_32]
   else m[SD_64]
@@ -309,8 +297,8 @@ function cur_architecture() -> Architecture = {
     let a : arch_xlen =
       match cur_privilege {
         Machine    => misa[MXL],
-        Supervisor => get_mstatus_SXL(mstatus),
-        User       => get_mstatus_UXL(mstatus)
+        Supervisor => mstatus[SXL],
+        User       => mstatus[UXL],
       };
     architecture(a)
   }
