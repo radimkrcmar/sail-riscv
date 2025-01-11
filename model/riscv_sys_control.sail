@@ -335,8 +335,6 @@ function init_sys() -> unit = {
                 else 0b0;
 
   mstatus = [mstatus with
-    SD_64 = 0b0,
-    SD_32 = 0b0,
     /* SXL and UXL is only valid for 64-bit systems and in RV32 WPRI */
     SXL = if xlen != 32 then misa[MXL] else 0b00,
     UXL = if xlen != 32 then misa[MXL] else 0b00,
