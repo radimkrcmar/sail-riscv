@@ -212,6 +212,17 @@ function status_dirty(s : Mstatus) -> bits(1) = {
                extStatus_of_bits(s[VS]) == Dirty)
 }
 
+/* WARL allows us to pick any valid value, so we pick the widest. */
+function legalize_arch_xlen(new : arch_xlen, max : arch_xlen) -> arch_xlen =
+  if new == 0b00 | new >_s max then max else new
+
+function legalize_sxl(v : Mstatus) -> arch_xlen =
+  if xlen == 32 then 0b00 else legalize_arch_xlen(v[SXL], misa[MXL])
+
+/* Since ISA version 20241017: MXLEN >= SXLEN >= UXLEN */
+function legalize_uxl(v : Mstatus) -> arch_xlen =
+  if xlen == 32 then 0b00 else legalize_arch_xlen(v[UXL], legalize_arch_xlen(v[SXL], misa[MXL]))
+
 function legalize_mstatus(o : Mstatus, v : bits(64)) -> Mstatus = {
   /*
    * Populate all defined fields using the bits of v, stripping anything
@@ -230,9 +241,9 @@ function legalize_mstatus(o : Mstatus, v : bits(64)) -> Mstatus = {
     /* We don't currently support changing MBE and SBE. */
     // MBE = v[MBE],
     // SBE = v[SBE],
-    /* We don't support dynamic changes to SXL and UXL. */
-    // SXL = if xlen == 64 then v[SXL] else o[SXL],
-    // UXL = if xlen == 64 then v[UXL] else o[UXL],
+    /* We don't support dynamic changes to SXL and UXL.  Notice the o instead of v. */
+    SXL = legalize_sxl(o),
+    UXL = legalize_uxl(o),
     // SDT = v[SDT],
     // SPELP = v[SPELP],
     TSR = v[TSR],
