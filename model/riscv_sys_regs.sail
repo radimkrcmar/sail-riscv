@@ -217,11 +217,15 @@ function legalize_arch_xlen(new : arch_xlen, max : arch_xlen) -> arch_xlen =
   if new == 0b00 | new >_s max then max else new
 
 function legalize_sxl(v : Mstatus) -> arch_xlen =
-  if xlen == 32 then 0b00 else legalize_arch_xlen(v[SXL], misa[MXL])
+  if   extensionEnabled(Ext_S) & xlen != 32
+  then legalize_arch_xlen(v[SXL], misa[MXL])
+  else 0b00
 
 /* Since ISA version 20241017: MXLEN >= SXLEN >= UXLEN */
 function legalize_uxl(v : Mstatus) -> arch_xlen =
-  if xlen == 32 then 0b00 else legalize_arch_xlen(v[UXL], legalize_arch_xlen(v[SXL], misa[MXL]))
+  if   extensionEnabled(Ext_U) & xlen != 32
+  then legalize_arch_xlen(v[UXL], legalize_arch_xlen(v[SXL], misa[MXL]))
+  else 0b00
 
 function legalize_mstatus(o : Mstatus, v : bits(64)) -> Mstatus = {
   /*
